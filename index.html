@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital Logic Circuits – Mechatronics</title>
+<style>
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ body{font-family:Arial,sans-serif;max-width:920px;margin:auto;padding:12px;color:#222}
+ h1{font-size:22px} h2{font-size:18px;color:#1a4d8f;margin-top:26px} h3{font-size:15px}
+ button{padding:8px 14px;margin:3px;border:1px solid #1a4d8f;background:#fff;border-radius:6px;cursor:pointer}
+ button.on{background:#1a4d8f;color:#fff}
+ .note{font-size:14px;background:#f2f7ff;padding:8px;border-left:4px solid #1a4d8f;margin:8px 0}
+ .sec{border:1px solid #ccc;border-radius:8px;padding:12px;margin-top:10px;page-break-inside:avoid}
+ svg{max-width:100%;border:1px solid #ddd;background:#fff}
+ .w{fill:none;stroke:#999;stroke-width:2.5;transition:stroke .3s,stroke-width .3s}
+ .gate{stroke:#333;stroke-width:2;fill:#f4f4f4;transition:fill .3s}
+ .gl{font-size:14px;font-weight:bold;text-anchor:middle;pointer-events:none}
+ #tab-adder .gl{font-size:15px}
+ .io{stroke:#333;stroke-width:2;fill:#ddd;transition:fill .3s}
+ .iv{font-size:15px;font-weight:bold;text-anchor:middle;pointer-events:none}
+ .nm{font-size:13px;font-weight:bold}
+ .read{font-size:17px;font-weight:bold;background:#eaf7ea;padding:6px 10px;border-left:5px solid #27ae60;margin:8px 0}
+ table.tt{border-collapse:collapse;margin:8px 0}
+ table.tt th,table.tt td{border:1px solid #888;padding:4px 14px;text-align:center;font-size:14px}
+ table.tt th{background:#eef3fa}
+ table.tt tr.cur td{background:#fff0a8;font-weight:bold}
+ .ov{text-decoration:overline}
+
+ /* ---- tab navigation ---- */
+ .tabs{position:sticky;top:0;z-index:10;background:#fff;padding:6px 0;border-bottom:2px solid #1a4d8f;margin-bottom:8px}
+ .tabs button{font-weight:bold}
+ .tabs button.active{background:#1a4d8f;color:#fff}
+ .tabpage{display:none}
+ .tabpage.active{display:block}
+
+ /* ---- multiplexer page ---- */
+ .steps{border:1px solid #1a4d8f;border-radius:8px;padding:8px 16px;margin-top:12px;page-break-inside:avoid}
+ .steps h3{color:#1a4d8f;margin:4px 0}
+ .steps ol{padding-left:22px} .steps li{margin:8px 0;font-size:14.5px;line-height:1.5}
+ .eq{font-size:17px;font-weight:bold;background:#f7f7f7;padding:6px 10px;border-radius:6px;margin:6px 0;line-height:2}
+ .hot{background:#fff0a8;outline:2px solid #f39c12;border-radius:4px;padding:0 4px}
+ .sub{font-size:15px;font-family:"Courier New",monospace;background:#eaf7ea;padding:6px 10px;border-left:5px solid #27ae60;margin:6px 0;line-height:1.7}
+ .cards{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+ .card{flex:1 1 400px;border:1px solid #bbb;border-radius:8px;padding:8px 10px;page-break-inside:avoid;font-size:13.5px}
+ .card h4{margin:0 0 4px;color:#1a4d8f;font-size:15px}
+ .card table.tt th,.card table.tt td{padding:3px 8px;font-size:13px}
+ .card .ln{font-family:"Courier New",monospace;font-size:12.5px;background:#f5f9f5;border-left:4px solid #27ae60;padding:3px 6px;margin:4px 0;line-height:1.5}
+ .card button{padding:4px 10px;font-size:12px}
+ .quiz{border:2px dashed #1a4d8f;border-radius:8px;padding:8px 12px;margin:10px 0;page-break-inside:avoid}
+ .qtext{font-size:15px;margin:6px 0;line-height:1.6}
+ .opt{display:inline-block;min-width:34px;text-align:center;padding:5px 12px;margin:3px;border:2px solid #1a4d8f;border-radius:6px;cursor:pointer;font-weight:bold;user-select:none}
+ .opt.sel{background:#1a4d8f;color:#fff}
+ .res{display:none;margin-top:6px;padding:6px 8px;border-left:5px solid #27ae60;background:#eaf7ea;font-size:13.5px}
+ .res.bad{border-color:#c0392b;background:#fdecea}
+ .pline{display:none}
+
+ /* ---- K-map page ---- */
+ table.km{border-collapse:collapse;margin:14px 0}
+ table.km td,table.km th{width:70px;height:62px;text-align:center;border:1px solid #777;position:relative;font-size:24px;font-weight:bold}
+ table.km th{background:#eef3fa;height:38px;font-size:15px}
+ table.km td{cursor:pointer;transition:background .4s,box-shadow .4s}
+ table.km td small{position:absolute;top:2px;left:4px;font-size:11px;font-weight:normal;color:#777}
+ table.km td.one{color:#000} table.km td.zero{color:#aaa}
+ .corner{font-size:12px!important;background:#dde6f3!important}
+ #steps div{padding:4px 8px;margin:4px 0;border-left:8px solid;font-size:15px}
+ #result{font-size:20px;font-weight:bold;margin-top:8px}
+ .ex{border:1px solid #bbb;border-radius:8px;padding:8px 12px;margin:14px 0;page-break-inside:avoid}
+ .wrap{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+ .left{flex:1 1 520px;min-width:0}
+ .right{flex:0 0 250px;border:1px solid #bbb;border-radius:6px;padding:6px;font-size:13px}
+ .stp{display:inline-block;vertical-align:top;width:46%;margin:6px 1%;padding:6px;border:1px solid #ddd;border-radius:6px;font-size:13px}
+ table.mini td,table.mini th{width:42px;height:38px;font-size:18px;cursor:default}
+ table.mini th{height:26px;font-size:12px}
+ table.mini td small{font-size:9px}
+ .fin{font-size:17px;font-weight:bold;background:#eaf7ea;padding:6px;border-left:5px solid #27ae60;margin-top:6px}
+ #tab-kmap table.tt{width:100%;margin:6px 0}
+ #tab-kmap table.tt th,#tab-kmap table.tt td{padding:2px 5px;font-size:12px}
+ table.tt tr.f1 td{background:#fff6d6}
+ table.tt td.ok{color:#1e8449;font-weight:bold}
+ table.tt td.bad{color:#c0392b;font-weight:bold;background:#fdecea}
+ .verdict{font-weight:bold;padding:5px;margin-top:4px;border-left:5px solid #27ae60;background:#eaf7ea}
+ .verdict.bad{border-color:#c0392b;background:#fdecea}
+
+ @media print{
+  button{display:none}
+  .ctl,.tabs{display:none}
+  .ex{page-break-after:auto}
+  .pline{display:block;margin:4px 0}
+  .tabpage{display:block!important;page-break-before:always}
+  .tabpage:first-of-type{page-break-before:auto}
+ }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+ <button class="tabbtn" data-t="adder" onclick="showTab('adder')">Half / Full Adder</button>
+ <button class="tabbtn" data-t="subtractor" onclick="showTab('subtractor')">Half / Full Subtractor</button>
+ <button class="tabbtn" data-t="mux" onclick="showTab('mux')">MUX / DEMUX</button>
+ <button class="tabbtn" data-t="kmap" onclick="showTab('kmap')">Karnaugh Map</button>
+</div>
+
+<!-- ===================== PAGE 1: ADDERS ===================== -->
+<section class="tabpage" id="tab-adder">
+<h1>Half Adder and Full Adder</h1>
+<p class="note"><b>Binary addition</b> (adding numbers that use only the digits 0 and 1): 0+0=0, 0+1=1, 1+0=1, and 1+1=10 (written "10" in binary, which is 2 in decimal). The right-hand digit is the <b>Sum</b> (the result bit in the current column) and the left-hand digit is the <b>Carry</b> (the extra bit passed to the next column). Adders are <b>combinational circuits</b> (circuits whose outputs depend only on the present inputs, with no memory) built from logic gates.</p>
+<p class="note">How to use: click the circles <b>A</b>, <b>B</b> (and <b>Cin</b>) to switch each input between 0 and 1. A <b>thick green</b> wire carries <b>logic 1</b> (a high voltage level) and a <b>thin grey</b> wire carries <b>logic 0</b> (a low voltage level). The signal moves through the gates one stage at a time.</p>
+
+<h2>1. Half Adder</h2>
+<p>A <b>half adder</b> (a circuit that adds two single bits, A and B, and produces a Sum and a Carry) uses two gates:</p>
+<ul>
+ <li><b>XOR gate</b> (Exclusive OR: output is 1 only when the two inputs are different) gives the <b>Sum</b>: S = A ⊕ B.</li>
+ <li><b>AND gate</b> (output is 1 only when both inputs are 1) gives the <b>Carry</b>: C = A · B.</li>
+</ul>
+<p>It is called "half" because it cannot accept a <b>carry-in</b> (a carry coming from a previous column).</p>
+<div class="sec" id="haBox"></div>
+
+<h2>2. Full Adder</h2>
+<p>A <b>full adder</b> (a circuit that adds three single bits: A, B and the carry-in Cin) has two outputs, Sum and <b>Cout</b> (carry-out, the carry passed to the next column). It is built from <b>two half adders</b> and one <b>OR gate</b> (output is 1 when at least one input is 1):</p>
+<ul>
+ <li>Sum = A ⊕ B ⊕ Cin</li>
+ <li>Cout = A·B + Cin·(A ⊕ B)</li>
+</ul>
+<p>Several full adders connected in a chain (the Cout of one feeds the Cin of the next) form a <b>ripple-carry adder</b> (a multi-bit adder where the carry "ripples" from the least significant bit to the most significant bit).</p>
+<div class="sec" id="faBox"></div>
+</section>
+
+<!-- ===================== PAGE 2: SUBTRACTORS ===================== -->
+<section class="tabpage" id="tab-subtractor">
+<h1>Half Subtractor and Full Subtractor</h1>
+<p class="note"><b>Binary subtraction</b> (subtracting numbers that use only the digits 0 and 1): 0−0=0, 1−0=1, 1−1=0, and 0−1 = 1 with a borrow. In A − B, A is the <b>minuend</b> (the number we subtract from) and B is the <b>subtrahend</b> (the number being subtracted). The result bit is the <b>Difference</b> (D). A <b>Borrow</b> (Bo) is a 1 taken from the next higher column when A is smaller than B (0 − 1). The borrowed 1 is worth 2 in this column, so 0 − 1 gives Difference = 1 with Borrow = 1. These are <b>combinational circuits</b> (circuits whose outputs depend only on the present inputs, with no memory) built from logic gates.</p>
+<p class="note">How to use: click the circles <b>A</b>, <b>B</b> (and <b>Bin</b>) to switch each input between 0 and 1. A <b>thick green</b> wire carries <b>logic 1</b> (a high voltage level) and a <b>thin grey</b> wire carries <b>logic 0</b> (a low voltage level). The signal moves through the gates one stage at a time.</p>
+
+<h2>1. Half Subtractor</h2>
+<p>A <b>half subtractor</b> (a circuit that subtracts one bit B from another bit A and produces a Difference and a Borrow) uses three gates:</p>
+<ul>
+ <li><b>XOR gate</b> (Exclusive OR: output is 1 only when the two inputs are different) gives the Difference: D = A ⊕ B.</li>
+ <li><b>NOT gate</b> (inverter: output is the opposite of the input) makes <span class="ov">A</span> (the complement of A, meaning NOT A).</li>
+ <li><b>AND gate</b> (output is 1 only when both inputs are 1) gives the Borrow: Bo = <span class="ov">A</span> · B.</li>
+</ul>
+<p>It is called "half" because it cannot accept a <b>borrow-in</b> (a borrow requested by the previous, lower column).</p>
+<div class="sec" id="hsBox"></div>
+
+<h2>2. Full Subtractor</h2>
+<p>A <b>full subtractor</b> (a circuit that subtracts B and a borrow-in Bin from A) has two outputs, Difference and <b>Bout</b> (borrow-out, the borrow requested from the next column). It is built from <b>two half subtractors</b> and one <b>OR gate</b> (output is 1 when at least one input is 1):</p>
+<ul>
+ <li>D = A ⊕ B ⊕ Bin</li>
+ <li>Bout = <span class="ov">A</span>·B + <span class="ov">(A ⊕ B)</span>·Bin</li>
+</ul>
+<p>Several full subtractors connected in a chain (the Bout of one feeds the Bin of the next) form a <b>ripple-borrow subtractor</b> (a multi-bit subtractor in which the borrow "ripples" from the least significant bit to the most significant bit).</p>
+<div class="sec" id="fsBox"></div>
+</section>
+
+<!-- ===================== PAGE 3: MUX / DEMUX ===================== -->
+<section class="tabpage" id="tab-mux">
+<h1>2-bit Multiplexer and Demultiplexer</h1>
+<p class="note">Both devices are <b>combinational circuits</b> (circuits whose outputs depend only on the present inputs, with no memory). They use <b>select lines</b> (control inputs that choose which path is open). With 2 select lines, S1 and S0, there are 2² = 4 possible <b>select codes</b> (binary values of S1S0: 00, 01, 10, 11), so the circuits have 4 paths. In mechatronics, they are used to read many sensors through one input (for example, one <b>ADC</b> (analog-to-digital converter, which turns a voltage into a binary number) channel) or to send one control signal to one of several actuators.</p>
+<p class="note">How to use: click the input circles to switch them between 0 and 1. A <b>thick green</b> wire carries <b>logic 1</b> (a high voltage level) and a <b>thin grey</b> wire carries <b>logic 0</b> (a low voltage level). A <b>yellow</b> AND gate is the one <b>selected</b> by S1 and S0. It turns <b>green</b> when its output is 1.</p>
+
+<h2>1. 4-to-1 Multiplexer (MUX)</h2>
+<p>A <b>multiplexer</b> (MUX: a data selector that connects one of several data inputs to a single output) has data inputs <b>I0 to I3</b>, select lines <b>S1, S0</b> and one output <b>Y</b>. It is built from <b>NOT gates</b> (inverters: output is the opposite of the input) to make the <b>complements</b> (opposite values, shown with a bar) of S1 and S0, four <b>3-input AND gates</b> (output is 1 only when all three inputs are 1), and one <b>4-input OR gate</b> (output is 1 when at least one input is 1).</p>
+<div class="sec" id="muxBox"></div>
+
+<div class="steps">
+ <h3>Step-by-step: how the MUX equation is built</h3>
+ <ol>
+  <li><b>List what we want.</b> The select code S1S0 must choose one data input: 00 → I0, 01 → I1, 10 → I2, 11 → I3.</li>
+  <li><b>Make a "selector" for each code.</b> A <b>minterm</b> (a product term that is 1 for exactly one input combination) is written by taking S1 (or S0) as it is when the code bit is <b>1</b>, and its complement when the code bit is <b>0</b>:
+   <ul>
+    <li>Code 00: <span class="ov">S1</span>·<span class="ov">S0</span> &nbsp;&nbsp; Code 01: <span class="ov">S1</span>·S0</li>
+    <li>Code 10: S1·<span class="ov">S0</span> &nbsp;&nbsp; Code 11: S1·S0</li>
+   </ul>
+   Each selector equals 1 only for its own code. This is why the circuit needs NOT gates.</li>
+  <li><b>AND each selector with its data input.</b> Using the <b>identity laws</b> (X·1 = X and X·0 = 0), the product passes the data when the selector is 1 and gives 0 when it is 0. For example, P2 = S1·<span class="ov">S0</span>·I2 equals I2 when S1S0 = 10, and 0 for every other code. These are the four AND gates.</li>
+  <li><b>OR the four products.</b> For any select code only one product can be non-zero, and the others are 0. Since X + 0 = X, the OR gate passes the selected data to Y.</li>
+  <li><b>Write the final equation:</b>
+   <div class="eq">Y =
+    <span id="mt0"><span class="ov">S1</span>·<span class="ov">S0</span>·I0</span> +
+    <span id="mt1"><span class="ov">S1</span>·S0·I1</span> +
+    <span id="mt2">S1·<span class="ov">S0</span>·I2</span> +
+    <span id="mt3">S1·S0·I3</span></div>
+   The highlighted term belongs to the current select code (change S1 and S0 in the circuit above).</li>
+  <li><b>Substitute the current values:</b>
+   <div class="sub" id="muxSub"></div></li>
+  <li><b>Check against the circuit:</b> 2 NOT gates (for the complements of S1 and S0) + 4 three-input AND gates (one term each) + 1 four-input OR gate = the equation above.</li>
+ </ol>
+</div>
+
+<h3>Worked truth-table examples: one card for each MUX select code</h3>
+<p class="note">In each table, <b>X</b> (a <b>don't-care</b> value: it may be 0 or 1 and does not change the output) marks the data inputs that are <b>not</b> selected. The substitution lines prove this: the selected input passes through, whatever the others are.</p>
+<div id="muxEx"></div>
+
+<h3>Predict before you reveal: MUX</h3>
+<p class="note"><b>Exercise:</b> For each question, work out Y on paper, <b>pick your prediction</b>, then press <b>Reveal</b>. Use <b>▶ Show in circuit</b> afterwards to watch the signals confirm (or correct) your answer.</p>
+<div class="quiz" id="muxQ"></div>
+
+<h2>2. 1-to-4 Demultiplexer (DEMUX)</h2>
+<p>A <b>demultiplexer</b> (DEMUX: a data distributor that sends one input to one of several outputs) is the reverse of a MUX. It has one data input <b>D</b>, select lines <b>S1, S0</b> and outputs <b>Y0 to Y3</b>. The selected output copies D; all other outputs stay 0.</p>
+<div class="sec" id="demuxBox"></div>
+
+<div class="steps">
+ <h3>Step-by-step: how the DEMUX equations are built</h3>
+ <ol>
+  <li><b>List what we want.</b> D must appear on exactly one output: code 00 → Y0, 01 → Y1, 10 → Y2, 11 → Y3. All other outputs must be 0.</li>
+  <li><b>Use the same selectors as the MUX.</b> The minterms (product terms that are 1 for exactly one code) are <span class="ov">S1</span>·<span class="ov">S0</span>, <span class="ov">S1</span>·S0, S1·<span class="ov">S0</span> and S1·S0.</li>
+  <li><b>AND each selector with the data input D.</b> By the identity laws (X·1 = X, X·0 = 0), the output equals D when its selector is 1 and equals 0 otherwise.</li>
+  <li><b>Write one equation per output:</b>
+   <div class="eq">
+    <span id="dt0">Y0 = <span class="ov">S1</span>·<span class="ov">S0</span>·D</span> &nbsp;
+    <span id="dt1">Y1 = <span class="ov">S1</span>·S0·D</span><br>
+    <span id="dt2">Y2 = S1·<span class="ov">S0</span>·D</span> &nbsp;
+    <span id="dt3">Y3 = S1·S0·D</span></div>
+   The highlighted equation belongs to the current select code.</li>
+  <li><b>Substitute the current values:</b>
+   <div class="sub" id="demuxSub"></div></li>
+  <li><b>Compare with the MUX:</b> A DEMUX needs <b>no OR gate</b>, because each output has its own AND gate. A MUX needs an OR gate to combine four paths into one output. If D is tied to 1, then Yk equals the selector itself, so the DEMUX acts as a <b>2-to-4 decoder</b> (a circuit that turns a 2-bit code into one active output line).</li>
+ </ol>
+</div>
+
+<h3>Worked truth-table examples: one card for each DEMUX select code</h3>
+<p class="note">Each card shows both values of D. Only the selected output follows D; the other three outputs are always 0.</p>
+<div id="demuxEx"></div>
+
+<h3>Predict before you reveal: DEMUX</h3>
+<p class="note"><b>Exercise:</b> For each question, decide <b>which output is 1</b> (or choose <b>None</b> if every output is 0). Pick your prediction, press <b>Reveal</b>, then use <b>▶ Show in circuit</b> to check.</p>
+<div class="quiz" id="demuxQ"></div>
+</section>
+
+<!-- ===================== PAGE 4: K-MAP ===================== -->
+<section class="tabpage" id="tab-kmap">
+<h1>Karnaugh Map (K-map) Simplification</h1>
+<p class="note">A <b>Karnaugh map</b> (a grid that displays a truth table so that neighbouring cells differ in only one variable) is used to simplify a <b>Boolean function</b> (an expression of 0/1 variables joined by AND, OR, NOT). Cells hold the function output; a <b>minterm</b> (one input combination, numbered in the small corner digit) with output 1 is a "one-cell".</p>
+
+<div class="ctl">
+ Variables:
+ <button id="b2" onclick="setN(2)">2-bit</button>
+ <button id="b3" onclick="setN(3)">3-bit</button>
+ <button id="b4" onclick="setN(4)">4-bit</button>
+ &nbsp;|&nbsp;
+ <button onclick="preset()">Load example</button>
+ <button onclick="clearAll()">Clear map</button>
+ <br>
+ <button onclick="next()">▶ Next step</button>
+ <button id="auto" onclick="autoPlay()">⏯ Auto-play</button>
+ <button onclick="resetSteps()">↺ Restart animation</button>
+</div>
+<p id="fdef"></p>
+<div id="mapbox"></div>
+<div id="steps"></div>
+<div id="result"></div>
+
+<h2>Grouping rules</h2>
+<ul>
+ <li><b>Gray code</b> (a counting order where only one bit changes between neighbours: 00, 01, 11, 10) labels the rows and columns, so adjacent cells differ by one variable.</li>
+ <li>A <b>group</b> (a rectangle of one-cells) must contain 1, 2, 4, 8 or 16 cells (a power of 2).</li>
+ <li>Groups may <b>wrap around</b> (continue across the left/right or top/bottom edge, because the map is circular).</li>
+ <li>Use the <b>largest</b> groups possible. Each larger group removes more variables (variables that change inside the group drop out).</li>
+ <li>Groups may <b>overlap</b> (share cells). Every one-cell must be in at least one group.</li>
+ <li>Each group gives a <b>product term</b> (AND of the variables that stay constant); the answer is the <b>SOP</b> (Sum of Products: the product terms joined by OR). A <span class="ov">bar</span> over a letter means <b>complement</b> (NOT, the opposite value).</li>
+</ul>
+
+<h2>Worked examples (step by step, with truth-table check)</h2>
+<p class="note">Each map shows the groups built so far. The <b>newest group</b> is tinted, and earlier groups keep their coloured outlines. The <b>truth table</b> (a list of every input combination with its output) on the right compares the original function <b>F</b> with the simplified expression <b>F<sub>s</sub></b>. If every row matches, the simplification is correct.</p>
+<div id="worked"></div>
+</section>
+
+<script>
+/* Shared registry used by the inline onclick handlers of the circuit pages */
+const C={};
+
+/* ---------- Tab navigation ---------- */
+function showTab(id){
+ document.querySelectorAll('.tabpage').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id));
+ document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active',b.dataset.t===id));
+ try{history.replaceState(null,'','#'+id);}catch(e){}
+ window.scrollTo(0,0);
+}
+
+/* =====================================================================
+   PAGES 1 + 2: shared engine for the adder and subtractor circuits
+   ===================================================================== */
+function makeCircuit(cfg){
+ const inp={}; cfg.inputs.forEach(i=>inp[i.k]=0);
+ const N=1<<cfg.inputs.length;
+ const maxL=Math.max(...cfg.wires.map(w=>w.lvl));
+ let timers=[], auto=null, step=0, vals=cfg.compute(inp);
+ const el=id=>document.getElementById(cfg.id+id);
+ const col=v=>v?'#1e9e4a':'#999';
+
+ /* ---- build page content ---- */
+ let s=`<svg viewBox="0 0 ${cfg.vw} ${cfg.vh}">`;
+ (cfg.boxes||[]).forEach(b=>{
+  s+=`<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="none" stroke="#1a4d8f" stroke-dasharray="6,4"/>
+      <text x="${b.x+4}" y="${b.y-5}" font-size="12" fill="#1a4d8f">${b.t}</text>`;
+ });
+ cfg.wires.forEach((w,i)=>s+=`<path class="w ${cfg.id}w" data-i="${i}" d="${w.d}"/>`);
+ (cfg.dots||[]).forEach(d=>s+=`<circle cx="${d[0]}" cy="${d[1]}" r="4" fill="#333"/>`);
+ cfg.gates.forEach((g,i)=>{
+  s+=`<rect id="${cfg.id}g${i}" class="gate" x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="8"/>
+      <text class="gl" x="${g.x+g.w/2}" y="${g.y+g.h/2+5}">${g.t}</text>`;
+ });
+ cfg.outs.forEach((o,i)=>{
+  s+=`<circle id="${cfg.id}o${i}" class="io" cx="${o.x}" cy="${o.y}" r="14"/>
+      <text id="${cfg.id}ot${i}" class="iv" x="${o.x}" y="${o.y+5}">0</text>
+      <text class="nm" x="${o.x+22}" y="${o.y+5}">${o.t}</text>`;
+ });
+ cfg.inputs.forEach(i=>{
+  s+=`<g onclick="C.${cfg.id}.toggle('${i.k}')" style="cursor:pointer">
+      <circle id="${cfg.id}i${i.k}" class="io" cx="20" cy="${i.y}" r="14"/>
+      <text id="${cfg.id}it${i.k}" class="iv" x="20" y="${i.y+5}">0</text></g>
+      <text class="nm" x="6" y="${i.y-22}">${i.k}</text>`;
+ });
+ s+='</svg>';
+ let t=`<table class="tt" id="${cfg.id}tt"><tr>`;
+ cfg.inputs.forEach(i=>t+=`<th>${i.k}</th>`);
+ cfg.outputs.forEach(o=>t+=`<th>${o.t}</th>`);
+ t+='</tr>';
+ for(let r=0;r<N;r++){
+  const b={}; cfg.inputs.forEach((x,j)=>b[x.k]=(r>>(cfg.inputs.length-1-j))&1);
+  const v=cfg.compute(b);
+  t+=`<tr id="${cfg.id}r${r}">`;
+  cfg.inputs.forEach(x=>t+=`<td>${b[x.k]}</td>`);
+  cfg.outputs.forEach(o=>t+=`<td>${v[o.sig]}</td>`);
+  t+='</tr>';
+ }
+ t+='</table>';
+ document.getElementById(cfg.id+'Box').innerHTML=
+  `<button id="${cfg.id}auto" onclick="C.${cfg.id}.autoRun()">⏯ Auto-run all inputs</button>
+   <button onclick="C.${cfg.id}.reset()">↺ Reset inputs to 0</button>
+   ${s}<div class="read" id="${cfg.id}read"></div>
+   <h3>Truth table (every input combination with its outputs; the current row is highlighted)</h3>${t}`;
+
+ /* ---- animation ---- */
+ function finish(){
+  let idx=0; cfg.inputs.forEach(i=>idx=(idx<<1)|inp[i.k]);
+  for(let r=0;r<N;r++)el('r'+r).className=(r==idx?'cur':'');
+  el('read').innerHTML=cfg.readout(inp,vals);
+ }
+ function paint(L){
+  document.querySelectorAll('.'+cfg.id+'w').forEach(p=>{
+   const w=cfg.wires[+p.dataset.i];
+   if(w.lvl==L){p.style.stroke=col(vals[w.sig]);p.style.strokeWidth=vals[w.sig]?4.5:2.5;}
+  });
+  cfg.gates.forEach((g,i)=>{if(g.lvl==L)el('g'+i).style.fill=vals[g.sig]?'#c8f0d2':'#f4f4f4';});
+  cfg.outs.forEach((o,i)=>{
+   if(o.lvl==L){el('o'+i).style.fill=vals[o.sig]?'#1e9e4a':'#ddd';
+    el('ot'+i).textContent=vals[o.sig];el('ot'+i).style.fill=vals[o.sig]?'#fff':'#333';}
+  });
+  if(L==0)cfg.inputs.forEach(i=>{
+   el('i'+i.k).style.fill=inp[i.k]?'#1e9e4a':'#ddd';
+   el('it'+i.k).textContent=inp[i.k];
+   el('it'+i.k).style.fill=inp[i.k]?'#fff':'#333';
+  });
+  if(L==maxL)finish();
+ }
+ function update(instant){
+  timers.forEach(clearTimeout);timers=[];
+  vals=cfg.compute(inp);
+  paint(0);
+  for(let L=1;L<=maxL;L++){
+   if(instant)paint(L);
+   else timers.push(setTimeout(()=>paint(L),L*450));
+  }
+ }
+ function setBits(i){
+  cfg.inputs.forEach((x,j)=>inp[x.k]=(i>>(cfg.inputs.length-1-j))&1);
+  update(false);
+ }
+ function stop(){if(auto){clearInterval(auto);auto=null;}el('auto').textContent='⏯ Auto-run all inputs';}
+ C[cfg.id]={
+  toggle(k){stop();inp[k]^=1;update(false);},
+  autoRun(){
+   if(auto){stop();return;}
+   step=0;el('auto').textContent='⏸ Stop';setBits(0);
+   auto=setInterval(()=>{step=(step+1)%N;setBits(step);},cfg.gap||2800);
+  },
+  reset(){stop();setBits(0);}
+ };
+ update(true);
+}
+
+/* ---------- Half adder ---------- */
+makeCircuit({
+ id:'ha', vw:600, vh:220,
+ inputs:[{k:'A',y:55},{k:'B',y:175}],
+ outputs:[{sig:'S',t:'Sum (S)'},{sig:'C',t:'Carry (C)'}],
+ compute:i=>({A:i.A,B:i.B,S:i.A^i.B,C:i.A&i.B}),
+ wires:[
+  {sig:'A',lvl:0,d:'M20,55 H240'},{sig:'A',lvl:0,d:'M120,55 V145 H240'},
+  {sig:'B',lvl:0,d:'M20,175 H240'},{sig:'B',lvl:0,d:'M90,175 V85 H240'},
+  {sig:'S',lvl:1,d:'M320,70 H430'},{sig:'C',lvl:1,d:'M320,160 H430'}
+ ],
+ dots:[[120,55],[90,175]],
+ gates:[
+  {x:240,y:40,w:80,h:60,t:'XOR',sig:'S',lvl:1},
+  {x:240,y:130,w:80,h:60,t:'AND',sig:'C',lvl:1}
+ ],
+ outs:[{x:444,y:70,t:'Sum (S)',sig:'S',lvl:1},{x:444,y:160,t:'Carry (C)',sig:'C',lvl:1}],
+ readout:(i,v)=>`${i.A} + ${i.B} = <b>${v.C}${v.S}</b> in binary = ${v.C*2+v.S} in decimal &nbsp;(Carry = ${v.C}, Sum = ${v.S})`
+});
+
+/* ---------- Full adder ---------- */
+makeCircuit({
+ id:'fa', vw:830, vh:285,
+ inputs:[{k:'A',y:45},{k:'B',y:75},{k:'Cin',y:250}],
+ outputs:[{sig:'S',t:'Sum (S)'},{sig:'Cout',t:'Cout (carry-out)'}],
+ compute:i=>{
+  const S1=i.A^i.B, C1=i.A&i.B, S=S1^i.Cin, C2=S1&i.Cin;
+  return {A:i.A,B:i.B,Cin:i.Cin,S1,C1,S,C2,Cout:C1|C2};
+ },
+ boxes:[
+  {x:135,y:22,w:90,h:160,t:'Half adder 1'},
+  {x:315,y:42,w:90,h:200,t:'Half adder 2'}
+ ],
+ wires:[
+  {sig:'A',lvl:0,d:'M20,45 H150'},{sig:'A',lvl:0,d:'M100,45 V125 H150'},
+  {sig:'B',lvl:0,d:'M20,75 H150'},{sig:'B',lvl:0,d:'M70,75 V155 H150'},
+  {sig:'Cin',lvl:0,d:'M20,250 H270 V95 H330'},{sig:'Cin',lvl:0,d:'M270,215 H330'},
+  {sig:'S1',lvl:1,d:'M210,60 H300 V65 H330'},{sig:'S1',lvl:1,d:'M300,65 V185 H330'},
+  {sig:'C1',lvl:1,d:'M210,140 H480 V135 H520'},
+  {sig:'S',lvl:2,d:'M390,80 H690'},
+  {sig:'C2',lvl:2,d:'M390,200 H480 V165 H520'},
+  {sig:'Cout',lvl:3,d:'M580,150 H690'}
+ ],
+ dots:[[100,45],[70,75],[270,215],[300,65]],
+ gates:[
+  {x:150,y:30,w:60,h:60,t:'XOR',sig:'S1',lvl:1},
+  {x:150,y:110,w:60,h:60,t:'AND',sig:'C1',lvl:1},
+  {x:330,y:50,w:60,h:60,t:'XOR',sig:'S',lvl:2},
+  {x:330,y:170,w:60,h:60,t:'AND',sig:'C2',lvl:2},
+  {x:520,y:120,w:60,h:60,t:'OR',sig:'Cout',lvl:3}
+ ],
+ outs:[
+  {x:704,y:80,t:'Sum (S)',sig:'S',lvl:2},
+  {x:704,y:150,t:'Cout',sig:'Cout',lvl:3}
+ ],
+ readout:(i,v)=>`${i.A} + ${i.B} + ${i.Cin} = <b>${v.Cout}${v.S}</b> in binary = ${v.Cout*2+v.S} in decimal &nbsp;(Cout = ${v.Cout}, Sum = ${v.S}; first half adder gives S1 = ${v.S1}, C1 = ${v.C1}; second gives C2 = ${v.C2})`
+});
+
+/* ---------- Half subtractor ---------- */
+makeCircuit({
+ id:'hs', vw:640, vh:220, gap:3200,
+ inputs:[{k:'A',y:55},{k:'B',y:175}],
+ outputs:[{sig:'D',t:'Difference (D)'},{sig:'Bo',t:'Borrow (Bo)'}],
+ compute:i=>{
+  const Abar=i.A?0:1;
+  return {A:i.A,B:i.B,Abar,D:i.A^i.B,Bo:Abar&i.B};
+ },
+ wires:[
+  {sig:'A',lvl:0,d:'M20,55 H240'},{sig:'A',lvl:0,d:'M110,55 V145 H140'},
+  {sig:'B',lvl:0,d:'M20,175 H260'},{sig:'B',lvl:0,d:'M90,175 V85 H240'},
+  {sig:'Abar',lvl:1,d:'M190,145 H260'},
+  {sig:'D',lvl:1,d:'M320,70 H430'},
+  {sig:'Bo',lvl:2,d:'M340,160 H430'}
+ ],
+ dots:[[110,55],[90,175]],
+ gates:[
+  {x:140,y:125,w:50,h:40,t:'NOT',sig:'Abar',lvl:1},
+  {x:240,y:40,w:80,h:60,t:'XOR',sig:'D',lvl:1},
+  {x:260,y:130,w:80,h:60,t:'AND',sig:'Bo',lvl:2}
+ ],
+ outs:[{x:444,y:70,t:'Difference (D)',sig:'D',lvl:1},{x:444,y:160,t:'Borrow (Bo)',sig:'Bo',lvl:2}],
+ readout:(i,v)=>`${i.A} − ${i.B}: Difference = <b>${v.D}</b>, Borrow = <b>${v.Bo}</b> &nbsp;(check: A − B = D − 2×Bo → ${i.A-i.B} = ${v.D-2*v.Bo})`
+});
+
+/* ---------- Full subtractor ---------- */
+makeCircuit({
+ id:'fs', vw:930, vh:300, gap:3200,
+ inputs:[{k:'A',y:45},{k:'B',y:75},{k:'Bin',y:270}],
+ outputs:[{sig:'D',t:'Difference (D)'},{sig:'Bout',t:'Bout (borrow-out)'}],
+ compute:i=>{
+  const Abar=i.A?0:1, D1=i.A^i.B, B1=Abar&i.B;
+  const D1bar=D1?0:1, D=D1^i.Bin, B2=D1bar&i.Bin;
+  return {A:i.A,B:i.B,Bin:i.Bin,Abar,D1,B1,D1bar,D,B2,Bout:B1|B2};
+ },
+ boxes:[
+  {x:115,y:22,w:145,h:160,t:'Half subtractor 1'},
+  {x:310,y:37,w:150,h:218,t:'Half subtractor 2'}
+ ],
+ wires:[
+  {sig:'A',lvl:0,d:'M20,45 H190'},{sig:'A',lvl:0,d:'M100,45 V125 H125'},
+  {sig:'B',lvl:0,d:'M20,75 H190'},{sig:'B',lvl:0,d:'M70,75 V155 H190'},
+  {sig:'Abar',lvl:1,d:'M165,125 H190'},
+  {sig:'Bin',lvl:0,d:'M20,270 H370 V90 H390'},{sig:'Bin',lvl:0,d:'M370,230 H390'},
+  {sig:'D1',lvl:1,d:'M250,60 H390'},{sig:'D1',lvl:1,d:'M300,60 V200 H320'},
+  {sig:'B1',lvl:2,d:'M250,140 H540 V145 H580'},
+  {sig:'D1bar',lvl:2,d:'M360,200 H390'},
+  {sig:'D',lvl:2,d:'M450,75 H760'},
+  {sig:'B2',lvl:3,d:'M450,215 H540 V175 H580'},
+  {sig:'Bout',lvl:4,d:'M640,160 H760'}
+ ],
+ dots:[[100,45],[70,75],[300,60],[370,230]],
+ gates:[
+  {x:125,y:105,w:40,h:40,t:'NOT',sig:'Abar',lvl:1},
+  {x:190,y:30,w:60,h:60,t:'XOR',sig:'D1',lvl:1},
+  {x:190,y:110,w:60,h:60,t:'AND',sig:'B1',lvl:2},
+  {x:320,y:180,w:40,h:40,t:'NOT',sig:'D1bar',lvl:2},
+  {x:390,y:45,w:60,h:60,t:'XOR',sig:'D',lvl:2},
+  {x:390,y:185,w:60,h:60,t:'AND',sig:'B2',lvl:3},
+  {x:580,y:130,w:60,h:60,t:'OR',sig:'Bout',lvl:4}
+ ],
+ outs:[
+  {x:774,y:75,t:'Difference (D)',sig:'D',lvl:2},
+  {x:774,y:160,t:'Bout (borrow-out)',sig:'Bout',lvl:4}
+ ],
+ readout:(i,v)=>`${i.A} − ${i.B} − ${i.Bin}: Difference = <b>${v.D}</b>, Bout = <b>${v.Bout}</b> &nbsp;(check: A − B − Bin = D − 2×Bout → ${i.A-i.B-i.Bin} = ${v.D-2*v.Bout}; half subtractor 1 gives D1 = ${v.D1}, B1 = ${v.B1}; half subtractor 2 gives B2 = ${v.B2})`
+});
+
+/* =====================================================================
+   PAGE 3: MULTIPLEXER / DEMULTIPLEXER
+   ===================================================================== */
+(function(){
+const QZ={}, PICK={};
+window.QZ=QZ;
+
+function makeSelCircuit(cfg){
+ const inp={};
+ cfg.inputs.forEach(i=>inp[i.k]=(cfg.init&&cfg.init[i.k])||0);
+ const maxL=Math.max(...cfg.wires.map(w=>w.lvl));
+ let timers=[], auto=null, step=0, vals=cfg.compute(inp);
+ const el=id=>document.getElementById(cfg.id+id);
+ const col=v=>v?'#1e9e4a':'#999';
+
+ /* ---- build page content ---- */
+ let s=`<svg viewBox="0 0 ${cfg.vw} ${cfg.vh}">`;
+ cfg.wires.forEach((w,i)=>s+=`<path class="w ${cfg.id}w" data-i="${i}" d="${w.d}"/>`);
+ cfg.dots.forEach(d=>s+=`<circle cx="${d[0]}" cy="${d[1]}" r="4" fill="#333"/>`);
+ cfg.gates.forEach((g,i)=>{
+  s+=`<rect id="${cfg.id}g${i}" class="gate" x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" rx="8"/>
+      <text class="gl" x="${g.x+g.w/2}" y="${g.y+g.h/2+5}">${g.t}</text>`;
+ });
+ cfg.outs.forEach((o,i)=>{
+  s+=`<circle id="${cfg.id}o${i}" class="io" cx="${o.x}" cy="${o.y}" r="14"/>
+      <text id="${cfg.id}ot${i}" class="iv" x="${o.x}" y="${o.y+5}">0</text>
+      <text class="nm" x="${o.x+22}" y="${o.y+5}">${o.t}</text>`;
+ });
+ cfg.inputs.forEach(i=>{
+  s+=`<g onclick="C.${cfg.id}.toggle('${i.k}')" style="cursor:pointer">
+      <circle id="${cfg.id}i${i.k}" class="io" cx="20" cy="${i.y}" r="14"/>
+      <text id="${cfg.id}it${i.k}" class="iv" x="20" y="${i.y+5}">0</text></g>
+      <text class="nm" x="6" y="${i.y-20}">${i.k}</text>`;
+ });
+ s+='</svg>';
+ let t=`<table class="tt"><tr>`;
+ cfg.head.forEach(h=>t+=`<th>${h}</th>`);
+ t+='</tr>';
+ cfg.rows.forEach((r,k)=>{
+  t+=`<tr id="${cfg.id}r${k}">`+r.map(c=>`<td>${c}</td>`).join('')+'</tr>';
+ });
+ t+='</table>';
+ document.getElementById(cfg.id+'Box').innerHTML=
+  `<button id="${cfg.id}auto" onclick="C.${cfg.id}.autoRun()">⏯ Auto-run select codes</button>
+   <button onclick="C.${cfg.id}.reset()">↺ Reset inputs</button>
+   ${s}<div class="read" id="${cfg.id}read"></div>
+   <h3>Function table (the row for the current select code is highlighted)</h3>${t}`;
+
+ /* ---- animation ---- */
+ function finish(){
+  const k=cfg.rowOf(inp);
+  cfg.rows.forEach((r,j)=>el('r'+j).className=(j==k?'cur':''));
+  el('read').innerHTML=cfg.readout(inp,vals);
+  if(cfg.onFinish)cfg.onFinish(inp,vals);
+ }
+ function paint(L){
+  document.querySelectorAll('.'+cfg.id+'w').forEach(p=>{
+   const w=cfg.wires[+p.dataset.i];
+   if(w.lvl==L){p.style.stroke=col(vals[w.sig]);p.style.strokeWidth=vals[w.sig]?4.5:2.5;}
+  });
+  cfg.gates.forEach((g,i)=>{
+   if(g.lvl==L)el('g'+i).style.fill=vals[g.sig]?'#c8f0d2':(g.act&&vals[g.act]?'#fff3b0':'#f4f4f4');
+  });
+  cfg.outs.forEach((o,i)=>{
+   if(o.lvl==L){el('o'+i).style.fill=vals[o.sig]?'#1e9e4a':'#ddd';
+    el('ot'+i).textContent=vals[o.sig];el('ot'+i).style.fill=vals[o.sig]?'#fff':'#333';}
+  });
+  if(L==0)cfg.inputs.forEach(i=>{
+   el('i'+i.k).style.fill=inp[i.k]?'#1e9e4a':'#ddd';
+   el('it'+i.k).textContent=inp[i.k];
+   el('it'+i.k).style.fill=inp[i.k]?'#fff':'#333';
+  });
+  if(L==maxL)finish();
+ }
+ function update(instant){
+  timers.forEach(clearTimeout);timers=[];
+  vals=cfg.compute(inp);
+  paint(0);
+  for(let L=1;L<=maxL;L++){
+   if(instant)paint(L);
+   else timers.push(setTimeout(()=>paint(L),L*450));
+  }
+ }
+ function stop(){if(auto){clearInterval(auto);auto=null;}el('auto').textContent='⏯ Auto-run select codes';}
+ C[cfg.id]={
+  toggle(k){stop();inp[k]^=1;update(false);},
+  set(obj){stop();Object.assign(inp,obj);update(false);},
+  autoRun(){
+   if(auto){stop();return;}
+   step=0;el('auto').textContent='⏸ Stop';
+   Object.assign(inp,cfg.auto[0]);update(false);
+   auto=setInterval(()=>{step=(step+1)%cfg.auto.length;Object.assign(inp,cfg.auto[step]);update(false);},3200);
+  },
+  reset(){
+   stop();cfg.inputs.forEach(i=>inp[i.k]=(cfg.init&&cfg.init[i.k])||0);update(false);
+  }
+ };
+ update(true);
+}
+
+/* ---------- shared select-line network (NOT gates, buses, taps) ---------- */
+function selNet(){
+ return {
+  wires:[
+   {sig:'S1',lvl:0,d:'M20,320 H130 V200'},{sig:'S1',lvl:0,d:'M50,320 V355 H60'},
+   {sig:'S0',lvl:0,d:'M20,410 H190 V146'},{sig:'S0',lvl:0,d:'M50,410 V435 H60'},
+   {sig:'S1b',lvl:1,d:'M100,355 H110 V60'},
+   {sig:'S0b',lvl:1,d:'M100,435 H160 V76'},
+   {sig:'S1b',lvl:1,d:'M110,60 H300'},{sig:'S0b',lvl:1,d:'M160,76 H300'},
+   {sig:'S1b',lvl:1,d:'M110,130 H300'},{sig:'S0',lvl:0,d:'M190,146 H300'},
+   {sig:'S1',lvl:0,d:'M130,200 H300'},{sig:'S0b',lvl:1,d:'M160,216 H300'},
+   {sig:'S1',lvl:0,d:'M130,270 H300'},{sig:'S0',lvl:0,d:'M190,286 H300'}
+  ],
+  dots:[[50,320],[50,410],[110,60],[160,76],[110,130],[190,146],[130,200],[160,216],[130,270],[190,286]],
+  gates:[
+   {x:60,y:340,w:40,h:30,t:'NOT',sig:'S1b',lvl:1},
+   {x:60,y:420,w:40,h:30,t:'NOT',sig:'S0b',lvl:1}
+  ]
+ };
+}
+const andGates=()=>[0,1,2,3].map(k=>({x:300,y:[32,102,172,242][k],w:60,h:56,t:'AND',sig:'P'+k,lvl:2,act:'E'+k}));
+const selCompute=i=>{
+ const sel=i.S1*2+i.S0, v={S1:i.S1,S0:i.S0,S1b:i.S1?0:1,S0b:i.S0?0:1,sel};
+ for(let k=0;k<4;k++)v['E'+k]=(sel==k)?1:0;
+ return v;
+};
+const codeOf=i=>`${i.S1}${i.S0}`;
+const hot=(prefix,sel)=>{for(let k=0;k<4;k++)document.getElementById(prefix+k).classList.toggle('hot',k==sel);};
+
+/* ---------- 4-to-1 multiplexer ---------- */
+(function(){
+ const n=selNet();
+ makeSelCircuit({
+  id:'mux', vw:780, vh:470,
+  init:{I0:1,I1:0,I2:1,I3:0},
+  inputs:[{k:'I0',y:44},{k:'I1',y:114},{k:'I2',y:184},{k:'I3',y:254},{k:'S1',y:320},{k:'S0',y:410}],
+  compute:i=>{
+   const v=selCompute(i), I=[i.I0,i.I1,i.I2,i.I3];
+   for(let k=0;k<4;k++){v['I'+k]=I[k];v['P'+k]=I[k]&v['E'+k];}
+   v.Y=v.P0|v.P1|v.P2|v.P3;
+   return v;
+  },
+  wires:n.wires.concat([
+   {sig:'I0',lvl:0,d:'M20,44 H300'},{sig:'I1',lvl:0,d:'M20,114 H300'},
+   {sig:'I2',lvl:0,d:'M20,184 H300'},{sig:'I3',lvl:0,d:'M20,254 H300'},
+   {sig:'P0',lvl:2,d:'M360,60 H390 V125 H470'},
+   {sig:'P1',lvl:2,d:'M360,130 H410 V155 H470'},
+   {sig:'P2',lvl:2,d:'M360,200 H410 V185 H470'},
+   {sig:'P3',lvl:2,d:'M360,270 H390 V215 H470'},
+   {sig:'Y',lvl:3,d:'M540,170 H620'}
+  ]),
+  dots:n.dots,
+  gates:n.gates.concat(andGates(),[{x:470,y:110,w:70,h:120,t:'OR',sig:'Y',lvl:3}]),
+  outs:[{x:634,y:170,t:'Y (output)',sig:'Y',lvl:3}],
+  head:['S1','S0','Output Y'],
+  rows:[[0,0,'I0'],[0,1,'I1'],[1,0,'I2'],[1,1,'I3']],
+  rowOf:i=>i.S1*2+i.S0,
+  auto:[{S1:0,S0:0},{S1:0,S0:1},{S1:1,S0:0},{S1:1,S0:1}],
+  readout:(i,v)=>`Select code S1S0 = <b>${codeOf(i)}</b> → data input <b>I${v.sel}</b> is connected to the output: Y = <b>${v.Y}</b>`,
+  onFinish:(i,v)=>{
+   hot('mt',v.sel);
+   const terms=[0,1,2,3].map(k=>`${v['E'+k]}·${v['I'+k]}`);
+   document.getElementById('muxSub').innerHTML=
+    `S1 = ${i.S1}, S0 = ${i.S0} &nbsp;(complements: S1' = ${v.S1b}, S0' = ${v.S0b})<br>`+
+    `Y = ${terms.join(' + ')}<br>`+
+    `Y = ${[0,1,2,3].map(k=>v['P'+k]).join(' + ')} = <b>${v.Y}</b> &nbsp;(only the term for code ${codeOf(i)} can be non-zero, so Y = I${v.sel})`;
+  }
+ });
+})();
+
+/* ---------- 1-to-4 demultiplexer ---------- */
+(function(){
+ const n=selNet();
+ makeSelCircuit({
+  id:'demux', vw:600, vh:470,
+  init:{D:1},
+  inputs:[{k:'D',y:44},{k:'S1',y:320},{k:'S0',y:410}],
+  compute:i=>{
+   const v=selCompute(i); v.D=i.D;
+   for(let k=0;k<4;k++)v['P'+k]=i.D&v['E'+k];
+   return v;
+  },
+  wires:n.wires.concat([
+   {sig:'D',lvl:0,d:'M20,44 H300'},{sig:'D',lvl:0,d:'M70,44 V254'},
+   {sig:'D',lvl:0,d:'M70,114 H300'},{sig:'D',lvl:0,d:'M70,184 H300'},{sig:'D',lvl:0,d:'M70,254 H300'},
+   {sig:'P0',lvl:2,d:'M360,60 H440'},{sig:'P1',lvl:2,d:'M360,130 H440'},
+   {sig:'P2',lvl:2,d:'M360,200 H440'},{sig:'P3',lvl:2,d:'M360,270 H440'}
+  ]),
+  dots:n.dots.concat([[70,44],[70,114],[70,184],[70,254]]),
+  gates:n.gates.concat(andGates()),
+  outs:[0,1,2,3].map(k=>({x:454,y:[60,130,200,270][k],t:'Y'+k,sig:'P'+k,lvl:2})),
+  head:['S1','S0','Y0','Y1','Y2','Y3'],
+  rows:[[0,0,'D',0,0,0],[0,1,0,'D',0,0],[1,0,0,0,'D',0],[1,1,0,0,0,'D']],
+  rowOf:i=>i.S1*2+i.S0,
+  auto:[{S1:0,S0:0},{S1:0,S0:1},{S1:1,S0:0},{S1:1,S0:1}],
+  readout:(i,v)=>`Select code S1S0 = <b>${codeOf(i)}</b> → input D = ${i.D} is sent to output <b>Y${v.sel}</b> (Y${v.sel} = <b>${v['P'+v.sel]}</b>); the other outputs stay 0`,
+  onFinish:(i,v)=>{
+   hot('dt',v.sel);
+   document.getElementById('demuxSub').innerHTML=
+    `S1 = ${i.S1}, S0 = ${i.S0}, D = ${i.D} &nbsp;(complements: S1' = ${v.S1b}, S0' = ${v.S0b})<br>`+
+    [0,1,2,3].map(k=>`Y${k} = ${v['E'+k]}·D = ${v['E'+k]}·${i.D} = <b>${v['P'+k]}</b>`).join('<br>');
+  }
+ });
+})();
+
+/* ---------- Worked truth-table examples for every select code ---------- */
+function selectorText(k){
+ const s1=k>>1, s0=k&1;
+ return `${s1?'S1':'<span class="ov">S1</span>'}·${s0?'S0':'<span class="ov">S0</span>'}`;
+}
+function buildMuxExamples(){
+ let h='<div class="cards">';
+ for(let k=0;k<4;k++){
+  const s1=k>>1, s0=k&1;
+  const E=[0,1,2,3].map(j=>j==k?1:0);
+  const line=I=>{
+   const terms=E.map((e,j)=>`${e}·${I[j]}`).join(' + ');
+   const prods=E.map((e,j)=>e&I[j]);
+   const y=prods.some(v=>v)?1:0;
+   return `Y = ${terms} = ${prods.join(' + ')} = <b>${y}</b>`;
+  };
+  const IA=[0,1,2,3].map(j=>j==k?1:0);
+  const IB=[0,1,2,3].map(j=>j==k?0:1);
+  const cells=sel=>[0,1,2,3].map(j=>j==k?sel:'X');
+  h+=`<div class="card"><h4>Select code S1S0 = ${s1}${s0} (decimal ${k}) → Y = I${k}</h4>
+   Selector (minterm) for this code: ${selectorText(k)} → equals 1 only for ${s1}${s0}.
+   <br>Selector values: ${E.map((e,j)=>`E${j}=${e}`).join(', ')}
+   <table class="tt"><tr><th>S1</th><th>S0</th><th>I0</th><th>I1</th><th>I2</th><th>I3</th><th>Y</th></tr>
+    <tr><td>${s1}</td><td>${s0}</td>${cells(0).map(c=>`<td>${c}</td>`).join('')}<td><b>0</b></td></tr>
+    <tr><td>${s1}</td><td>${s0}</td>${cells(1).map(c=>`<td>${c}</td>`).join('')}<td><b>1</b></td></tr></table>
+   <b>Check 1</b> (I${k} = 1, the others = 0):<div class="ln">${line(IA)}</div>
+   <b>Check 2</b> (I${k} = 0, the others = 1):<div class="ln">${line(IB)}</div>
+   Only I${k} matters, so Y = I${k}.
+   <br><button onclick="C.mux.set({S1:${s1},S0:${s0}});document.getElementById('muxBox').scrollIntoView({behavior:'smooth'})">▶ Show in circuit</button></div>`;
+ }
+ document.getElementById('muxEx').innerHTML=h+'</div>';
+}
+function buildDemuxExamples(){
+ let h='<div class="cards">';
+ for(let k=0;k<4;k++){
+  const s1=k>>1, s0=k&1;
+  const E=[0,1,2,3].map(j=>j==k?1:0);
+  const outs=d=>E.map(e=>e&d);
+  const line=d=>E.map((e,j)=>`Y${j} = ${e}·${d} = ${e&d}`).join('; ');
+  h+=`<div class="card"><h4>Select code S1S0 = ${s1}${s0} (decimal ${k}) → D goes to Y${k}</h4>
+   Selector (minterm) for this code: ${selectorText(k)} → equals 1 only for ${s1}${s0}.
+   <br>Selector values: ${E.map((e,j)=>`E${j}=${e}`).join(', ')}
+   <table class="tt"><tr><th>S1</th><th>S0</th><th>D</th><th>Y0</th><th>Y1</th><th>Y2</th><th>Y3</th></tr>
+    ${[0,1].map(d=>`<tr><td>${s1}</td><td>${s0}</td><td>${d}</td>${outs(d).map((o,j)=>`<td>${j==k?'<b>'+o+'</b>':o}</td>`).join('')}</tr>`).join('')}</table>
+   <b>Check 1</b> (D = 0):<div class="ln">${line(0)}</div>
+   <b>Check 2</b> (D = 1):<div class="ln">${line(1)}</div>
+   Only Y${k} follows D; the other outputs stay 0.
+   <br><button onclick="C.demux.set({S1:${s1},S0:${s0}});document.getElementById('demuxBox').scrollIntoView({behavior:'smooth'})">▶ Show in circuit</button></div>`;
+ }
+ document.getElementById('demuxEx').innerHTML=h+'</div>';
+}
+buildMuxExamples();
+buildDemuxExamples();
+
+/* ---------- Predict-before-you-reveal exercises ---------- */
+function buildQuiz(id,circ,qs,opts){
+ QZ[id]={circ,qs};
+ let h=`<button onclick="revealAll('${id}')">Reveal all answers</button>
+        <button onclick="resetQuiz('${id}')">↺ Reset exercise</button><div class="cards">`;
+ qs.forEach((q,n)=>{
+  h+=`<div class="card" id="${id}q${n}"><h4>Question ${n+1}</h4>
+   <div class="qtext">${q.text}</div>
+   <div class="pline">Your prediction: ______________</div>
+   <div>${opts.map(o=>`<span class="opt" data-v="${o}" onclick="pick('${id}',${n},this)">${o}</span>`).join('')}</div>
+   <button onclick="reveal('${id}',${n})">Reveal</button>
+   <button onclick="C.${circ}.set(QZ['${id}'].qs[${n}].set);document.getElementById('${circ}Box').scrollIntoView({behavior:'smooth'})">▶ Show in circuit</button>
+   <div class="res" id="${id}res${n}"></div></div>`;
+ });
+ document.getElementById(id).innerHTML=h+'</div>';
+}
+function pick(id,n,span){
+ span.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+ span.classList.add('sel'); PICK[id+n]=span.dataset.v;
+}
+function reveal(id,n){
+ const q=QZ[id].qs[n], p=PICK[id+n], r=document.getElementById(id+'res'+n);
+ let msg, bad=false;
+ if(p===undefined) msg=`<b>Answer: ${q.ans}</b>`;
+ else if(p==q.ans) msg=`✓ <b>Correct!</b> Answer: ${q.ans}`;
+ else {msg=`✗ You predicted ${p}. <b>Answer: ${q.ans}</b>`;bad=true;}
+ r.innerHTML=msg+'<br>'+q.why; r.className='res'+(bad?' bad':''); r.style.display='block';
+}
+function revealAll(id){QZ[id].qs.forEach((q,n)=>reveal(id,n));}
+function resetQuiz(id){
+ QZ[id].qs.forEach((q,n)=>{
+  delete PICK[id+n];
+  const r=document.getElementById(id+'res'+n); r.style.display='none'; r.innerHTML='';
+  document.getElementById(id+'q'+n).querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+ });
+}
+window.pick=pick; window.reveal=reveal; window.revealAll=revealAll; window.resetQuiz=resetQuiz;
+
+/* MUX questions: predict Y */
+buildQuiz('muxQ','mux',
+ [{S1:0,S0:0,I:[1,0,0,1]},{S1:0,S0:1,I:[1,0,1,1]},{S1:1,S0:0,I:[0,1,1,0]},{S1:1,S0:1,I:[1,1,0,0]}]
+ .map(q=>{
+  const sel=q.S1*2+q.S0, y=q.I[sel];
+  return {
+   text:`S1S0 = <b>${q.S1}${q.S0}</b>, &nbsp; I0 I1 I2 I3 = <b>${q.I.join(' ')}</b>. &nbsp; What is Y?`,
+   set:{S1:q.S1,S0:q.S0,I0:q.I[0],I1:q.I[1],I2:q.I[2],I3:q.I[3]},
+   ans:String(y),
+   why:`Code ${q.S1}${q.S0} selects <b>I${sel}</b> (selector ${selectorText(sel)} = 1). I${sel} = ${y}, so <b>Y = ${y}</b>. The other inputs are blocked by their AND gates (0·I = 0).`
+  };
+ }),
+ ['0','1']);
+
+/* DEMUX questions: predict which output is 1 */
+buildQuiz('demuxQ','demux',
+ [{S1:0,S0:1,D:1},{S1:1,S0:0,D:0},{S1:1,S0:1,D:1},{S1:0,S0:0,D:1}]
+ .map(q=>{
+  const sel=q.S1*2+q.S0, ans=q.D?('Y'+sel):'None';
+  return {
+   text:`S1S0 = <b>${q.S1}${q.S0}</b>, &nbsp; D = <b>${q.D}</b>. &nbsp; Which output is 1?`,
+   set:{S1:q.S1,S0:q.S0,D:q.D},
+   ans,
+   why:q.D
+    ?`Code ${q.S1}${q.S0} selects <b>Y${sel}</b> (selector ${selectorText(sel)} = 1), so Y${sel} = 1·D = <b>1</b>. The other outputs are 0·D = 0.`
+    :`Code ${q.S1}${q.S0} selects Y${sel}, but D = 0, so Y${sel} = 1·0 = <b>0</b>. Every other output is 0 as well, so <b>no output is 1</b> (None).`
+  };
+ }),
+ ['Y0','Y1','Y2','Y3','None']);
+})();
+
+/* =====================================================================
+   PAGE 4: KARNAUGH MAP
+   ===================================================================== */
+(function(){
+const $=id=>document.getElementById(id);
+const NAMES='ABCD', COLORS=['#e74c3c','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','#d35400','#7f8c8d'];
+const EX={2:[1,2,3],3:[1,3,5,7,6],4:[0,2,5,7,8,10,13,15]};
+const WORKED=[
+ {n:2,m:[1,2,3]},
+ {n:3,m:[1,3,5,6,7]},
+ {n:4,m:[0,2,5,7,8,10,13,15]}
+];
+let n=3, ones=new Set(), groups=[], idx=0, timer=null;
+
+const gray=b=>b==1?[0,1]:[0,1,3,2];
+const bin=(v,b)=>v.toString(2).padStart(b,'0');
+const ov=c=>`<span class="ov">${c}</span>`;
+
+function setN(k){n=k;stopAuto();[2,3,4].forEach(i=>$('b'+i).classList.toggle('on',i==k));
+ ones=new Set(EX[k]);build();}
+function preset(){stopAuto();ones=new Set(EX[n]);build();}
+function clearAll(){stopAuto();ones=new Set();build();}
+
+function build(){
+ const rb=n==4?2:1, cb=n-rb, R=gray(rb), C=gray(cb);
+ let h=`<table class="km"><tr><th class="corner">${NAMES.slice(0,rb)} \\ ${NAMES.slice(rb,n)}</th>`;
+ C.forEach(c=>h+=`<th>${bin(c,cb)}</th>`);
+ h+='</tr>';
+ R.forEach(r=>{h+=`<tr><th>${bin(r,rb)}</th>`;
+  C.forEach(c=>{const m=(r<<cb)|c;h+=`<td id="m${m}" onclick="flip(${m})"><small>${m}</small><span id="v${m}"></span></td>`;});
+  h+='</tr>';});
+ $('mapbox').innerHTML=h+'</table><p class="note">Click any cell to toggle it between 0 and 1.</p>';
+ refresh();
+}
+function flip(m){stopAuto();ones.has(m)?ones.delete(m):ones.add(m);refresh();}
+
+function refresh(){
+ for(let m=0;m<1<<n;m++){const o=ones.has(m);$('v'+m).textContent=o?1:0;$('m'+m).className=o?'one':'zero';}
+ const l=[...ones].sort((a,b)=>a-b);
+ $('fdef').innerHTML=`F(${NAMES.slice(0,n).split('').join(', ')}) = Σm(${l.join(', ')||'none'}) &nbsp;(Σm means "sum of the minterms that give 1")`;
+ solve();resetSteps();
+}
+
+/* ---------- K-map solver ---------- */
+function solve(){
+ const N=1<<n; groups=[];
+ if(ones.size==0)return;
+ const cubes=[];
+ for(let mask=0;mask<N;mask++){
+  let v=mask;
+  while(true){
+   const cov=[];for(let m=0;m<N;m++)if((m&mask)==v)cov.push(m);
+   if(cov.every(m=>ones.has(m)))cubes.push({mask,v,cov});
+   if(v==0)break;v=(v-1)&mask;
+  }
+ }
+ const primes=cubes.filter(c=>!cubes.some(o=>o.cov.length>c.cov.length&&c.cov.every(m=>o.cov.includes(m))));
+ const chosen=[],done=new Set();
+ const take=p=>{if(!chosen.includes(p)){chosen.push(p);p.cov.forEach(m=>done.add(m));}};
+ [...ones].forEach(m=>{const p=primes.filter(c=>c.cov.includes(m));if(p.length==1)take(p[0]);});
+ while([...ones].some(m=>!done.has(m))){
+  let best=null,bs=-1;
+  primes.forEach(p=>{const s=p.cov.filter(m=>!done.has(m)).length;if(s>bs||(s==bs&&best&&p.cov.length>best.cov.length)){bs=s;best=p;}});
+  take(best);
+ }
+ groups=chosen.sort((a,b)=>b.cov.length-a.cov.length);
+}
+function term(c){
+ let s='';
+ for(let i=0;i<n;i++){const b=n-1-i;if((c.mask>>b)&1)s+=((c.v>>b)&1)?NAMES[i]:ov(NAMES[i]);}
+ return s||'1';
+}
+function dropped(c){const d=[];for(let i=0;i<n;i++){if(!((c.mask>>(n-1-i))&1))d.push(NAMES[i]);}return d;}
+
+/* ---------- Animation ---------- */
+function resetSteps(){
+ idx=0;$('steps').innerHTML='';$('result').innerHTML='';
+ for(let m=0;m<1<<n;m++){const e=$('m'+m);if(!e)continue;e.style.boxShadow='none';e.style.background='';e.dataset.k=0;}
+ if(ones.size==0)$('result').innerHTML='F = 0 (no one-cells: output is always 0)';
+}
+function next(){
+ if(!groups.length||idx>groups.length)return;
+ if(idx==groups.length){showFinal();idx++;return;}
+ const g=groups[idx],col=COLORS[idx%COLORS.length];
+ g.cov.forEach(m=>{
+  const e=$('m'+m),k=+e.dataset.k;
+  const old=e.style.boxShadow==='none'?'':e.style.boxShadow+',';
+  e.style.boxShadow=old+`inset 0 0 0 ${3+4*k}px ${col}`;
+  if(k==0)e.style.background=col+'33';
+  e.dataset.k=k+1;
+ });
+ const d=dropped(g),sz=g.cov.length;
+ const name={1:'single cell',2:'pair',4:'quad',8:'octet',16:'all cells'}[sz];
+ const why=d.length?`${d.join(', ')} change${d.length==1?'s':''} inside the group, so ${d.length==1?'it drops':'they drop'} out.`:'no variable changes, so every variable stays in the term.';
+ $('steps').insertAdjacentHTML('beforeend',`<div style="border-color:${col};background:${col}1a">
+  <b>Group ${idx+1}</b> – ${name} of ${sz} cell${sz>1?'s':''} (minterms ${g.cov.join(', ')}): ${why} Term = <b>${term(g)}</b></div>`);
+ idx++;
+}
+function showFinal(){
+ $('result').innerHTML='Simplified: F = '+groups.map(term).join(' + ');
+}
+function autoPlay(){
+ if(timer){stopAuto();return;}
+ resetSteps();$('auto').textContent='⏸ Pause';
+ timer=setInterval(()=>{next();if(idx>groups.length||!groups.length)stopAuto();},1400);
+}
+function stopAuto(){if(timer){clearInterval(timer);timer=null;}$('auto').textContent='⏯ Auto-play';}
+
+/* ---------- Worked examples (static, printable) ---------- */
+function mini(nv,set,gs,upto){
+ const rb=nv==4?2:1, cb=nv-rb, R=gray(rb), C=gray(cb);
+ let h=`<table class="km mini"><tr><th class="corner">${NAMES.slice(0,rb)} \\ ${NAMES.slice(rb,nv)}</th>`;
+ C.forEach(c=>h+=`<th>${bin(c,cb)}</th>`);
+ h+='</tr>';
+ R.forEach(r=>{
+  h+=`<tr><th>${bin(r,rb)}</th>`;
+  C.forEach(c=>{
+   const m=(r<<cb)|c, sh=[]; let bg='';
+   for(let k=0;k<=upto&&k<gs.length;k++){
+    if(gs[k].cov.includes(m)){
+     sh.push(`inset 0 0 0 ${3+4*sh.length}px ${COLORS[k%COLORS.length]}`);
+     if(k==upto)bg=COLORS[k%COLORS.length]+'44';
+     else if(!bg)bg=COLORS[k%COLORS.length]+'1a';
+    }
+   }
+   h+=`<td class="${set.has(m)?'one':'zero'}" style="box-shadow:${sh.join(',')||'none'};background:${bg}"><small>${m}</small>${set.has(m)?1:0}</td>`;
+  });
+  h+='</tr>';
+ });
+ return h+'</table>';
+}
+
+/* Truth-table check: compares original F with the simplified expression Fs */
+function truthCheck(nv,set,gs){
+ const N=1<<nv;
+ let h=`<b>Truth-table check</b><br><span style="font-size:12px">F = original function; F<sub>s</sub> = simplified expression (1 when any group term is 1).</span>`;
+ h+='<table class="tt"><tr><th>#</th>';
+ for(let i=0;i<nv;i++)h+=`<th>${NAMES[i]}</th>`;
+ h+='<th>F</th><th>F<sub>s</sub></th><th>Match</th></tr>';
+ let bad=0;
+ for(let m=0;m<N;m++){
+  const f=set.has(m)?1:0;
+  const fs=gs.some(g=>(m&g.mask)==g.v)?1:0;
+  const ok=f==fs; if(!ok)bad++;
+  h+=`<tr class="${f?'f1':''}"><td>${m}</td>`;
+  for(let i=0;i<nv;i++)h+=`<td>${(m>>(nv-1-i))&1}</td>`;
+  h+=`<td>${f}</td><td>${fs}</td><td class="${ok?'ok':'bad'}">${ok?'✓':'✗'}</td></tr>`;
+ }
+ h+='</table>';
+ h+=bad==0
+  ?`<div class="verdict">All ${N} rows match ✓ – the simplified expression is correct.</div>`
+  :`<div class="verdict bad">${bad} row(s) differ ✗ – re-check the groups.</div>`;
+ return h;
+}
+
+function buildWorked(){
+ const sn=n, so=ones, sg=groups;
+ let out='';
+ WORKED.forEach((w,wi)=>{
+  n=w.n; ones=new Set(w.m); solve();
+  const gs=groups, nm=NAMES.slice(0,n).split('').join(', ');
+  out+=`<div class="ex"><h3>Example ${wi+1}: ${n}-variable map &nbsp; F(${nm}) = Σm(${w.m.join(', ')})</h3><div class="wrap"><div class="left">`;
+  out+=`<div class="stp"><b>Step 0 – Plot the function.</b> Write 1 in the cells of the listed minterms and 0 in the rest.${mini(n,ones,gs,-1)}</div>`;
+  gs.forEach((g,k)=>{
+   const col=COLORS[k%COLORS.length], sz=g.cov.length;
+   const name={1:'single cell',2:'pair',4:'quad',8:'octet',16:'all cells'}[sz];
+   const kept=[];
+   for(let i=0;i<n;i++){const b=n-1-i;if((g.mask>>b)&1)kept.push(`${NAMES[i]}=${(g.v>>b)&1}`);}
+   const d=dropped(g);
+   out+=`<div class="stp" style="border-color:${col}"><b style="color:${col}">Step ${k+1} – Circle a ${name}</b> (${sz} cell${sz>1?'s':''}: minterms ${g.cov.join(', ')}).
+    <br>Stays constant: ${kept.join(', ')||'nothing'}.
+    <br>Changes (so it drops out): ${d.join(', ')||'none'}.
+    <br>Term: <b>${term(g)}</b>${mini(n,ones,gs,k)}</div>`;
+  });
+  out+=`<div class="stp"><b>Step ${gs.length+1} – Check.</b> Every 1 is inside at least one group, and no 0 is circled. Groups are as large as possible (powers of 2). Verify with the truth table on the right.</div>`;
+  out+=`<div class="fin">Result: F<sub>s</sub> = ${gs.map(term).join(' + ')}</div>`;
+  out+=`</div><div class="right">${truthCheck(n,ones,gs)}</div></div></div>`;
+ });
+ n=sn; ones=so; groups=sg;
+ $('worked').innerHTML=out;
+}
+
+/* expose the functions used by inline onclick handlers */
+window.setN=setN; window.preset=preset; window.clearAll=clearAll; window.flip=flip;
+window.next=next; window.autoPlay=autoPlay; window.resetSteps=resetSteps;
+
+/* ---------- Start-up ---------- */
+setN(3);
+buildWorked();
+})();
+
+/* ---------- Open the tab named in the URL (default: adder) ---------- */
+(function(){
+ const h=location.hash.slice(1);
+ showTab(['adder','subtractor','mux','kmap'].includes(h)?h:'adder');
+})();
+</script>
+</body>
+</html>
